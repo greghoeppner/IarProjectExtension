@@ -1,7 +1,12 @@
 {
 	"name": "iarproject",
 	"displayName": "IarProject",
+	"publisher": "greghoeppner",
 	"description": "Allows the adding of files to your IAR projects without having to open IAR.",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/greghoeppner/IarProjectExtension"
+	},
 	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.43.0"
