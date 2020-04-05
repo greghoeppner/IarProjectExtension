@@ -10,7 +10,6 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.helloWorld",
 		"onCommand:extension.addToIarProject"
 	],
 	"main": "./out/extension.js",
@@ -24,10 +23,6 @@
 			]
 		},
 		"commands": [
-			{
-				"command": "extension.helloWorld",
-				"title": "Hello World"
-			},
 			{
 				"command": "extension.addToIarProject",
 				"title": "Add to IAR Project"
