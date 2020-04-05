@@ -13,23 +13,11 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "iarproject" is now active!');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-	});
-
 //    "iarproject.projectFile": "home_system.ewp"
 
 	//vscode.commands.executeCommand('setContext', 'jsonOutlineEnabled', enabled);
-	
-	context.subscriptions.push(disposable);
 
-	let disposable2 = vscode.commands.registerCommand('extension.addToIarProject', (uri:vscode.Uri) => {
+	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (uri:vscode.Uri) => {
 		var workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? "";
 		var filePath = uri.fsPath.replace(workspaceFolder, "$PROJ_DIR$");
 		console.log(filePath);
@@ -61,57 +49,95 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	context.subscriptions.push(disposable2);
+	context.subscriptions.push(disposable);
 }
 
 function lookInGroup(root: any, path: string, fileToAdd: string, output: {modified: boolean}) {
+	var folderFound = false;
 	root.forEach((element: any) => {
-		var folderName;
-		if (path === "") {
-			folderName = element.name;
-		} else {
-			folderName = path + "\\" + element.name;
+		var folderName = path === "" ? element.name : path + "\\" + element.name;
+		var fileToAddPath = getFilePath(fileToAdd);
+		if (folderName.toUpperCase() === fileToAddPath.toUpperCase()) {
+			folderFound = true;
 		}
-		//console.log("Folder: " + folderName);
+		
+		var fileFound = false;
 		for (const key in element) {
 			if (element.hasOwnProperty(key)) {
 				if (key === "group") {
-					lookInGroup(element[key], folderName, fileToAdd, output);
-				} else if (key === "file") {
-					var fileToAddPath;
-					var fileStartIndex = fileToAdd.lastIndexOf("\\");
-					if (fileStartIndex >= 0) {
-						fileToAddPath = fileToAdd.substr(0, fileStartIndex);
-					} else {
-						fileToAddPath = "";
+					if (lookInGroup(element[key], folderName, fileToAdd, output)) {
+						folderFound = true;
 					}
-					if (folderName.toUpperCase() === fileToAddPath.toUpperCase()) {
-						if (!lookInFile(element[key], folderName, fileToAdd)) {
-							// Add file to this spot.
-							console.log("Adding file '" + fileToAdd + "' to folder '" + folderName + "'");
-
-							var newElement = {name: [fileToAdd]};
-							element[key].push(newElement);
-
-							output.modified = true;
-						}
+				} else if (key === "file") {
+					if (folderName.toUpperCase() === fileToAddPath.toUpperCase() && lookInFile(element[key], folderName, fileToAdd)) {
+						fileFound = true;
 					}
 				}
 			}
 		}
+
+		if (!folderFound && (folderName.toUpperCase() !== fileToAddPath.toUpperCase()) && hasBasePath(fileToAddPath, folderName)) {
+			var folder = fileToAddPath.substring(folderName.length + 1).split("\\")[0];
+			var newGroup = { name: [folder] };
+			if (element.hasOwnProperty("group")) {
+				element.group.push(newGroup);
+			} else {
+				element.group = [newGroup];
+			}
+			lookInGroup(element.group, folderName, fileToAdd, output);
+			folderFound = true;
+		}
+
+		if (!fileFound && folderName.toUpperCase() === fileToAddPath.toUpperCase()) {
+			console.log("Adding file '" + fileToAdd + "' to folder '" + folderName + "'");
+
+			var newFile = {name: [fileToAdd]};
+			if (element.hasOwnProperty("file")) {
+				element.file.push(newFile);
+			} else {
+				element.file = [newFile];
+			}
+
+			output.modified = true;
+		}
+
+
 	});
+	return folderFound;
+}
+
+function hasBasePath(path: string, basePath: any) {
+	var basePathFolders = basePath.toUpperCase().split("\\");
+	var pathFolders = path.toUpperCase().split("\\");
+
+	if (pathFolders.length < basePathFolders.length) { 
+		return false; 
+	}
+
+	for (let index = 0; index < basePathFolders.length; index++) {
+		if (basePathFolders[index] !== pathFolders[index]) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function getFilePath(fileToAdd: string) {
+	var fileStartIndex = fileToAdd.lastIndexOf("\\");
+	return (fileStartIndex >= 0) ? fileToAdd.substr(0, fileStartIndex) : "";
 }
 
 function lookInFile(root: any, path: string, fileToAdd: string) {
+	var found = false;
 	root.forEach((element: any) => {
 		if (fileToAdd.toUpperCase() === element.name[0].toUpperCase()) {
 			console.log("Found file '" + fileToAdd + "' in folder '" + path + "'");
-			return true;
+			found = true;
 		}
-		//console.log(element.name[0]);
 	});
 
-	return false;
+	return found;
 }
 
 // this method is called when your extension is deactivated
