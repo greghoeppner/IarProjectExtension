@@ -13,10 +13,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "iarproject" is now active!');
 
-//    "iarproject.projectFile": "home_system.ewp"
-
-	//vscode.commands.executeCommand('setContext', 'jsonOutlineEnabled', enabled);
-
 	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (uri:vscode.Uri) => {
 		var workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? "";
 		var filePath = uri.fsPath.replace(workspaceFolder, "$PROJ_DIR$");
