@@ -11,12 +11,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "iarproject" is now active!');
+	console.log('Extension "iarproject" is now active!');
 
 	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (uri:vscode.Uri) => {
 		var workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? "";
 		var filePath = uri.fsPath.replace(workspaceFolder, "$PROJ_DIR$");
-		console.log(filePath);
+		console.log("Attempting to add '" + filePath + "' to the IAR project");
 		
 		const config = vscode.workspace.getConfiguration('iarproject', null);
 		const projectFile = config.get<string>('projectFile');
@@ -24,8 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
 		let xml_string = fs.readFileSync(projectFile, "utf8");
 
 		parseString(xml_string, function(error: null, result: any) {
-			if(error === null) {
-				var output = { modified: false};
+			if (error === null) {
+				var output = { modified: false };
+
 				lookInGroup(result.project.group, "$PROJ_DIR$", filePath, output);
 
 				if (output.modified) {
@@ -35,6 +36,8 @@ export function activate(context: vscode.ExtensionContext) {
 					fs.writeFile(projectFile, xml, function(err: any, data: any) {
 						if (err) {
 							console.log(err);
+						} else {
+							vscode.window.showInformationMessage("Added '" + filePath + "' to the IAR project");
 						}
 					});
 				}
