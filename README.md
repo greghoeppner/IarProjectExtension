@@ -1,4 +1,4 @@
-# iarproject README
+# IAR Project
 
 This visual studio code extension is to allow making changes to an IAR project without having to open the IAR tool. Currently this only supports adding files to the project.
 
@@ -22,6 +22,11 @@ File renaming does not update the IAR project.
 
 ## Release Notes
 
+### 0.0.2
+
+* Added the ability to select and add multiple files to the project.
+* Allows adding files of type .c, .h, .cpp, .s, .a, and .lib.
+
 ### 0.0.1
 
-Initial release.
+* Initial release.
