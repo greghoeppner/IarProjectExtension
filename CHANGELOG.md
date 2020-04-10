@@ -4,6 +4,9 @@ All notable changes to the "IAR Project" extension will be documented in this fi
 
 ## [Unreleased]
 
+- Fixed issue where duplicate files were being added to the root folder.
+- Added a new view to show the contents of the IAR project file.
+
 ## 0.0.2
 
 - Added the ability to select and add multiple files to the project.
