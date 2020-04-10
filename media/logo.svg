@@ -1,0 +1,16 @@
+<svg width="128" height="128" xmlns="http://www.w3.org/2000/svg">
+ <!-- Generator: Sketch 40.3 (33839) - http://www.bohemiancoding.com/sketch -->
+ <title>Slice</title>
+ <desc>Created with Sketch.</desc>
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="130" width="130" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <ellipse ry="60" rx="60" id="svg_5" cy="64" cx="64.232558" stroke-width="1.5" stroke="#44a0bf" fill="#44a0bf"/>
+  <text xml:space="preserve" text-anchor="start" font-family="Georgia, Times, 'Times New Roman', serif" font-size="28" id="svg_16" y="49.453488" x="34.465121" fill-opacity="null" stroke-opacity="null" stroke-width="0" stroke="#44a0bf" fill="#ffffff">I A R</text>
+  <text xml:space="preserve" text-anchor="start" font-family="Georgia, Times, 'Times New Roman', serif" font-size="28" id="svg_17" y="88.290696" x="21.441865" fill-opacity="null" stroke-opacity="null" stroke-width="0" stroke="#44a0bf" fill="#ffffff">Project</text>
+ </g>
+</svg>

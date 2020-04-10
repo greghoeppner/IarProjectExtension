@@ -3,6 +3,7 @@
 	"displayName": "IarProject",
 	"publisher": "greghoeppner",
 	"description": "Allows the adding of files to your IAR projects without having to open IAR.",
+	"icon": "media/logo.png",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/greghoeppner/IarProjectExtension"
@@ -15,6 +16,7 @@
 		"Other"
 	],
 	"activationEvents": [
+		"onView:projectExplorer",
 		"workspaceContains:**/*.ewp"
 	],
 	"main": "./out/extension.js",
@@ -43,6 +45,24 @@
 					"default": null
 				}
 			}
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "iar-project",
+					"title": "IAR Explorer",
+					"icon": "media/iar.svg"
+				}
+			]
+		},
+		"views": {
+			"iar-project": [
+				{
+					"id": "projectExplorer",
+					"name": "IAR Explorer"
+				}
+
+			]
 		}
 	},
 	"scripts": {

@@ -3,6 +3,8 @@
 import * as vscode from 'vscode';
 import { SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION } from 'constants';
 import { stringify } from 'querystring';
+import { ProjectExplorer } from './projectExplorer';
+import * as utility from './utility';
 const { parseString } = require('xml2js');
 const xml2js = require("xml2js");
 const fs = require('fs');
@@ -16,6 +18,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	verifyExtensionSettings();
 
+	new ProjectExplorer(context);
+
 	vscode.workspace.onDidChangeConfiguration(() => { verifyExtensionSettings(); });
 
 	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (...args) => { handleAddToIarProject(args); });
@@ -24,11 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function verifyExtensionSettings() {
-	const config = vscode.workspace.getConfiguration('iarproject', null);
-	var workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : "";
-	var projectFile = config.get<string>('projectFile')?.replace("${workspaceFolder}", workspaceFolder);
-	var projectFileExists = fs.existsSync(projectFile);
-	vscode.commands.executeCommand('setContext', 'iarProjectExtensionEnabled', projectFileExists);
+	vscode.commands.executeCommand('setContext', 'iarProjectExtensionEnabled', utility.fileExists(utility.getProjectFile()));
 }
 
 function handleAddToIarProject(args: any[]) {
@@ -104,7 +104,9 @@ function addFileToProject(project: any, filePath: string, output: { modified: bo
 		if (fileToAddPath.toUpperCase() !== "$PROJ_DIR$") {
 			addGroup(fileToAddPath, "$PROJ_DIR$", project, filePath, output);
 		} else {
-			addFile(filePath, project, output);
+			if (!project.hasOwnProperty("file") || !lookInFile(project.file, "PROJ_DIR$", filePath)) {
+				addFile(filePath, project, output);
+			}
 		}
 	}
 }
