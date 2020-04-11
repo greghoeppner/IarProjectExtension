@@ -8,7 +8,7 @@
 		"type": "git",
 		"url": "https://github.com/greghoeppner/IarProjectExtension"
 	},
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"engines": {
 		"vscode": "^1.43.0"
 	},
@@ -27,12 +27,22 @@
 					"when": "iarProjectExtensionEnabled && !explorerResourceIsFolder && resourceExtname =~ /(^.c$|^.h$|^.cpp$|^.a$|^.lib$|^.s$)/",
 					"command": "extension.addToIarProject"
 				}
+			],
+			"view/item/context": [
+				{
+					"command": "projectExplorer.removeFromProject",
+					"when": "view == projectExplorer"
+				}
 			]
 		},
 		"commands": [
 			{
 				"command": "extension.addToIarProject",
 				"title": "Add to IAR Project"
+			},
+			{
+				"command": "projectExplorer.removeFromProject",
+				"title": "Remove"
 			}
 		],
 		"configuration": {
@@ -61,7 +71,6 @@
 					"id": "projectExplorer",
 					"name": "IAR Explorer"
 				}
-
 			]
 		}
 	},
@@ -74,6 +83,7 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"dependencies": {
+		"@types/xml2js": "^0.4.5",
 		"xml2js": "^0.4.23",
 		"xmljs": "^0.3.2"
 	},

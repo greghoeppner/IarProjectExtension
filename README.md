@@ -22,6 +22,11 @@ File renaming does not update the IAR project.
 
 ## Release Notes
 
+### 0.0.3
+
+* Fixed issue where duplicate files were being added to the root folder.
+* Added a new view to show the contents of the IAR project file and allow the removal of files from the IAR projects.
+
 ### 0.0.2
 
 * Added the ability to select and add multiple files to the project.
