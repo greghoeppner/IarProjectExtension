@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as utility from './utility';
 const { parseString } = require('xml2js');
 import * as iarProject from './iarProject';
+import { promises } from 'dns';
 
 interface Entry {
 	uri: vscode.Uri;
@@ -33,15 +34,21 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
         var projectFile = utility.getProjectFile();
 
         if (utility.fileExists(projectFile)) {
+            console.log("Added file system watcher for '" + projectFile + "'");
             this.watcher = vscode.workspace.createFileSystemWatcher(projectFile, false, false, false);
 
             this.watcher.onDidChange((uri: vscode.Uri) => {
-                this._onDidChangeTreeData.fire();
+                console.log("File '" + projectFile + "' changed. Refreshing IAR Explorer.");
+                this.refresh();
             });
         }
         if (forceRefresh) {
             this._onDidChangeTreeData.fire();
         }
+    }
+
+    public refresh() {
+        this._onDidChangeTreeData.fire();
     }
 
     readProjectData(data: any, basePath: string): [string, vscode.FileType, string, any][] | Thenable<[string, vscode.FileType, string, any][]> {
@@ -116,10 +123,11 @@ export class ProjectExplorer {
 	private projectExplorer: vscode.TreeView<Entry>;
 
 	constructor(context: vscode.ExtensionContext) {
-		const treeDataProvider = new IarProjectProvider();
-		this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider });
+        const treeDataProvider = new IarProjectProvider();
+		this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true });
         vscode.commands.registerCommand('projectExplorer.openFile', (resource) => this.openResource(resource));
         vscode.commands.registerCommand('projectExplorer.removeFromProject', (...args) => this.removeFromProject(args));
+        vscode.commands.registerCommand('projectExplorer.refresh', () => treeDataProvider.refresh());
 	}
 
 	private openResource(resource: vscode.Uri): void {
@@ -128,26 +136,46 @@ export class ProjectExplorer {
     
     private removeFromProject(args: any) {
         console.log(args);
-        if (args[0]) {
-            var projectData = iarProject.getProjectData();
-            if (projectData) {
-                var updateProject = false;
-                if (args[0].type === vscode.FileType.Directory) {
-                    var groups = args[0].originalName.split("\\");
-                    if (this.removeGroup(groups, projectData.project)) {
-                        updateProject = true;
+        iarProject.getProjectData()
+            .then(projectData => {
+                if (args[1]) {
+                    var writeData = false;
+                    for (let index = 0; index < args[1].length; index++) {
+                        const entry = args[1][index];
+                        if (this.handleRemove(entry, projectData)) {
+                            writeData = true;
+                        }
                     }
+                    return writeData ? projectData : undefined;
+                } else if (args[0]) {
+                    return this.handleRemove(args[0], projectData);
                 }
-                else if (args[0].type === vscode.FileType.File) {
-                    if (this.removeFile(args[0].originalName, projectData.project)) {
-                        updateProject = true;
-                    }
-                }
-                if (updateProject) {
+                return undefined;
+            })
+            .then(projectData => {
+                if (projectData) {
                     iarProject.saveProjectData(projectData);
                 }
+            })
+            .catch(reason => console.log(reason));
+
+    }
+
+    async handleRemove(item: any, projectData: any): Promise<any> {
+        if (item.type === vscode.FileType.Directory) {
+            var groups = item.originalName.split("\\");
+            if (this.removeGroup(groups, projectData.project)) {
+                return Promise.resolve(projectData);
             }
         }
+        
+        if (item.type === vscode.FileType.File) {
+            if (this.removeFile(item.originalName, projectData.project)) {
+                return Promise.resolve(projectData);
+            }
+        }
+
+        return Promise.resolve(undefined);
     }
 
     private removeGroup(groups: any, data: any): boolean {

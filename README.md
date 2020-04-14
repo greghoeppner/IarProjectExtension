@@ -22,6 +22,10 @@ File renaming does not update the IAR project.
 
 ## Release Notes
 
+### 0.0.4
+
+* Added a refresh button to the explorer bar in the event that the auto refresh does not work.
+
 ### 0.0.3
 
 * Fixed issue where duplicate files were being added to the root folder.

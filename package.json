@@ -33,6 +33,13 @@
 					"command": "projectExplorer.removeFromProject",
 					"when": "view == projectExplorer"
 				}
+			],
+			"view/title": [
+				{
+					"command": "projectExplorer.refresh",
+					"when": "view == projectExplorer",
+					"group": "navigation"
+				}
 			]
 		},
 		"commands": [
@@ -43,6 +50,14 @@
 			{
 				"command": "projectExplorer.removeFromProject",
 				"title": "Remove"
+			},
+			{
+				"command": "projectExplorer.refresh",
+				"title": "Refresh",
+				"icon": {
+					"dark": "resources/dark/refresh.svg",
+					"light": "resources/light/refresh.svg"
+				}
 			}
 		],
 		"configuration": {

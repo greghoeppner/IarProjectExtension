@@ -2,7 +2,9 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
-## [Unreleased]
+## 0.0.4
+
+- Added a refresh button to the explorer bar in the event that the auto refresh does not work.
 
 ## 0.0.3
 

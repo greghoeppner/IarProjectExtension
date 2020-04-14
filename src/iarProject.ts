@@ -2,23 +2,15 @@ import * as utility from './utility';
 import * as fs from 'fs';
 import * as xml2js from 'xml2js';
 
-export function getProjectData(): any {
+export async function getProjectData(): Promise<any> {
     var projectFile = utility.getProjectFile();
-    var projectData = undefined;
 
     if (utility.fileExists(projectFile)) {
         let xml_string = fs.readFileSync(projectFile, "utf8");
-        xml2js.parseString(xml_string, (error: Error, result: any) => {
-            if (error !== null) {
-                console.log(error);
-                return;
-            }
-            
-            projectData = result;
-        });
+        return xml2js.parseStringPromise(xml_string);
     }
 
-    return projectData;
+    return Promise.reject('Project file does not exist');
 }
 
 export function saveProjectData(projectData: any): boolean {
