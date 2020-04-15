@@ -16,38 +16,24 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
     private _iarProjectData: any;
 	private _onDidChangeTreeData: vscode.EventEmitter<Entry | undefined> = new vscode.EventEmitter<Entry | undefined>();
     readonly onDidChangeTreeData: vscode.Event<Entry | undefined> = this._onDidChangeTreeData.event;
-    private watcher: vscode.FileSystemWatcher | undefined;
+    private watcher: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/*.ewp", false, false, false);;
 
 	constructor() {
-        this.addProjectWatcher();
-        vscode.workspace.onDidChangeConfiguration(() => { this.addProjectWatcher();});
+        vscode.workspace.onDidChangeConfiguration(() => { this.refresh();});
+        this.watcher.onDidChange((e: vscode.Uri) => this.checkForProjectChange(e));
 	}
 
-    private addProjectWatcher() {
-        var forceRefresh = false;
-        if (this.watcher) {
-            this.watcher.dispose();
-            this.watcher = undefined;
-            forceRefresh = true;
-        }
-    
+    private checkForProjectChange(e: vscode.Uri) {
+        console.log("The IAR project file '" + e.fsPath + "' changed");
+
         var projectFile = utility.getProjectFile();
-
-        if (utility.fileExists(projectFile)) {
-            console.log("Added file system watcher for '" + projectFile + "'");
-            this.watcher = vscode.workspace.createFileSystemWatcher(projectFile, false, false, false);
-
-            this.watcher.onDidChange((uri: vscode.Uri) => {
-                console.log("File '" + projectFile + "' changed. Refreshing IAR Explorer.");
-                this.refresh();
-            });
-        }
-        if (forceRefresh) {
-            this._onDidChangeTreeData.fire();
+        if (projectFile.toUpperCase() === e.fsPath.toUpperCase()) {
+            this.refresh();
         }
     }
 
     public refresh() {
+        console.log("Refreshing IAR Explorer");
         this._onDidChangeTreeData.fire();
     }
 
@@ -96,7 +82,12 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
                 var project = this._iarProjectData.project;
 
                 const children = await this.readProjectData(project, "");
-                
+                children.sort((a, b) => {
+                    if (a[1] === b[1]) {
+                        return a[0].localeCompare(b[0]);
+                    }
+                    return a[1] === vscode.FileType.Directory ? -1 : 1;
+                });
                 return children.map(([name, type, originalName, data]) => ({ uri: vscode.Uri.file(name), type, originalName, data }));
             }
         }

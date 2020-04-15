@@ -2,6 +2,11 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.0.5
+
+- Updated the project file watcher to not care about file case.
+- Updated the IAR Explorer to sort the Treeview.
+
 ## 0.0.4
 
 - Added a refresh button to the explorer bar in the event that the auto refresh does not work.
