@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.0.6
+
+- Fixed sorting in the IAR Explorer.
+
 ## 0.0.5
 
 - Updated the project file watcher to not care about file case.

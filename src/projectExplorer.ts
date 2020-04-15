@@ -63,6 +63,12 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
 	async getChildren(element?: Entry): Promise<Entry[]> {
         if (element) {
             const children = await this.readProjectData(element.data, element.originalName);
+            children.sort((a, b) => {
+                if (a[1] === b[1]) {
+                    return a[0].localeCompare(b[0]);
+                }
+                return a[1] === vscode.FileType.Directory ? -1 : 1;
+            });
             return children.map(([name, type, originalName, data]) => ({ uri: vscode.Uri.file(name), type, originalName, data }));
         }
 
