@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.0.7
+
+- Added auto detection of the project file.
+
 ## 0.0.6
 
 - Fixed sorting in the IAR Explorer.

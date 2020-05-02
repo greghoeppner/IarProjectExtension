@@ -9,13 +9,8 @@ const { parseString } = require('xml2js');
 const xml2js = require("xml2js");
 const fs = require('fs');
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Extension "iarproject" is now active!');
-
+export async function activate(context: vscode.ExtensionContext) {
+	await setupExtension();
 	verifyExtensionSettings();
 
 	new ProjectExplorer(context);
@@ -25,6 +20,19 @@ export function activate(context: vscode.ExtensionContext) {
 	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (...args) => { handleAddToIarProject(args); });
 
 	context.subscriptions.push(disposable);
+}
+
+async function setupExtension() {
+	const config = vscode.workspace.getConfiguration('iarproject', null);
+	if (config.projectFile === null) {
+		await vscode.workspace.findFiles("*.ewp").then((value) => {
+			config
+				.update("projectFile", value[0].fsPath, vscode.ConfigurationTarget.Workspace)
+				.then(undefined, (reason) => {
+					console.log("Unable to update the project file setting: " + reason);
+			});
+		});
+	}
 }
 
 function verifyExtensionSettings() {
