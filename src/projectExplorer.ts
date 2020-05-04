@@ -4,6 +4,7 @@ import * as utility from './utility';
 const { parseString } = require('xml2js');
 import * as iarProject from './iarProject';
 import { promises } from 'dns';
+import * as ce from './configurationExplorer';
 
 interface Entry {
 	uri: vscode.Uri;
@@ -125,6 +126,8 @@ export class ProjectExplorer {
         vscode.commands.registerCommand('projectExplorer.openFile', (resource) => this.openResource(resource));
         vscode.commands.registerCommand('projectExplorer.removeFromProject', (...args) => this.removeFromProject(args));
         vscode.commands.registerCommand('projectExplorer.refresh', () => treeDataProvider.refresh());
+
+        vscode.window.registerTreeDataProvider('configurationExplorer', new ce.ConfigurationProvider());
 	}
 
 	private openResource(resource: vscode.Uri): void {

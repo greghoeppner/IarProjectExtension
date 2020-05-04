@@ -8,7 +8,7 @@
 		"type": "git",
 		"url": "https://github.com/greghoeppner/IarProjectExtension"
 	},
-	"version": "0.0.7",
+	"version": "0.1.0",
 	"engines": {
 		"vscode": "^1.43.0"
 	},
@@ -85,6 +85,10 @@
 				{
 					"id": "projectExplorer",
 					"name": "IAR Explorer"
+				},
+				{
+					"id": "configurationExplorer",
+					"name": "Configuration Explorer"
 				}
 			]
 		}

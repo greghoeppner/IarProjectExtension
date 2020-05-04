@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.1.0
+
+- Added tree view to show the compiler and assembler includes.
+
 ## 0.0.7
 
 - Added auto detection of the project file.
