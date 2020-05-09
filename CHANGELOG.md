@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.1.1
+
+- Added in the collapse all for the treeviews.
+
 ## 0.1.0
 
 - Added tree view to show the compiler and assembler includes.

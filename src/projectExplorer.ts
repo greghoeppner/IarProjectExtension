@@ -122,12 +122,12 @@ export class ProjectExplorer {
 
 	constructor(context: vscode.ExtensionContext) {
         const treeDataProvider = new IarProjectProvider();
-		this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true });
+		this.projectExplorer = vscode.window.createTreeView('projectExplorer', { treeDataProvider, canSelectMany: true, showCollapseAll: true });
         vscode.commands.registerCommand('projectExplorer.openFile', (resource) => this.openResource(resource));
         vscode.commands.registerCommand('projectExplorer.removeFromProject', (...args) => this.removeFromProject(args));
         vscode.commands.registerCommand('projectExplorer.refresh', () => treeDataProvider.refresh());
 
-        vscode.window.registerTreeDataProvider('configurationExplorer', new ce.ConfigurationProvider());
+        vscode.window.createTreeView('configurationExplorer', {treeDataProvider: new ce.ConfigurationProvider(), showCollapseAll: true});
 	}
 
 	private openResource(resource: vscode.Uri): void {
