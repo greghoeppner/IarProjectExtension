@@ -64,7 +64,10 @@
 			"title": "IAR Project",
 			"properties": {
 				"iarproject.projectFile": {
-					"type": "string",
+					"type": [
+						"string",
+						"null"
+					],
 					"scope": "resource",
 					"description": "The project file for IAR",
 					"default": null

@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.1.2
+
+- Fixed issue where the default setting did not accept null as a type.
+
 ## 0.1.1
 
 - Added in the collapse all for the treeviews.
