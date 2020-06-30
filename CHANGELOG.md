@@ -2,7 +2,7 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
-## x.x.x
+## 0.1.3
 
 - Updated the configuration explorer to auto update when changes to the project file are detected.
 
