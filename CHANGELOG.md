@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## x.x.x
+
+- Updated the configuration explorer to auto update when changes to the project file are detected.
+
 ## 0.1.2
 
 - Fixed issue where the default setting did not accept null as a type.

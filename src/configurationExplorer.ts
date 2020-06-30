@@ -1,9 +1,31 @@
 import * as vscode from 'vscode';
 import * as iarProject from './iarProject';
 import { promises } from 'dns';
+import * as utility from './utility';
 
 export class ConfigurationProvider implements vscode.TreeDataProvider<Setting> {
-    constructor() { }
+	private _onDidChangeTreeData: vscode.EventEmitter<Setting | undefined> = new vscode.EventEmitter<Setting | undefined>();
+    readonly onDidChangeTreeData: vscode.Event<Setting | undefined> = this._onDidChangeTreeData.event;
+    private watcher: vscode.FileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/*.ewp", false, false, false);;
+
+    constructor() {
+        vscode.workspace.onDidChangeConfiguration(() => { this.refresh();});
+        this.watcher.onDidChange((e: vscode.Uri) => this.checkForProjectChange(e));
+    }
+
+    private checkForProjectChange(e: vscode.Uri) {
+        console.log("The IAR project file '" + e.fsPath + "' changed");
+
+        var projectFile = utility.getProjectFile();
+        if (projectFile.toUpperCase() === e.fsPath.toUpperCase()) {
+            this.refresh();
+        }
+    }
+
+    public refresh() {
+        console.log("Refreshing Configuration Explorer");
+        this._onDidChangeTreeData.fire();
+    }
 
     getTreeItem(element: Setting): vscode.TreeItem {
         return element;
@@ -22,7 +44,6 @@ export class ConfigurationProvider implements vscode.TreeDataProvider<Setting> {
                 });
         }
     }
-
 }
 
 export class Setting extends vscode.TreeItem {
