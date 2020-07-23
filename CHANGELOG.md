@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.1.4
+
+- Updated packages to fix vulnerability.
+
 ## 0.1.3
 
 - Updated the configuration explorer to auto update when changes to the project file are detected.

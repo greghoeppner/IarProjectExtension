@@ -24,7 +24,7 @@ export class ConfigurationProvider implements vscode.TreeDataProvider<Setting> {
 
     public refresh() {
         console.log("Refreshing Configuration Explorer");
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     getTreeItem(element: Setting): vscode.TreeItem {

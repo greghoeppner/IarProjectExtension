@@ -35,7 +35,7 @@ export class IarProjectProvider implements vscode.TreeDataProvider<Entry>, vscod
 
     public refresh() {
         console.log("Refreshing IAR Explorer");
-        this._onDidChangeTreeData.fire();
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     readProjectData(data: any, basePath: string): [string, vscode.FileType, string, any][] | Thenable<[string, vscode.FileType, string, any][]> {
