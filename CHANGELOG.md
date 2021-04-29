@@ -2,6 +2,10 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.2.0
+
+- Added the ability to add folders to the include path by right clicking on the folder.
+
 ## 0.1.5
 
 - Security update.
