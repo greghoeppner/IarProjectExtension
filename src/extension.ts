@@ -1,5 +1,3 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION } from 'constants';
 import { stringify } from 'querystring';
@@ -10,6 +8,7 @@ import { settings } from 'cluster';
 const { parseString } = require('xml2js');
 const xml2js = require("xml2js");
 const fs = require('fs');
+const path = require('path');
 
 export async function activate(context: vscode.ExtensionContext) {
 	await setupExtension();
@@ -19,13 +18,21 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	vscode.workspace.onDidChangeConfiguration(() => { verifyExtensionSettings(); });
 
-	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (...args) => { handleAddToIarProject(args); });
+	let disposable = vscode.commands.registerCommand('extension.addToIarProject', (...args) => { handleAddToIarProject(args, false); });
 
 	context.subscriptions.push(disposable);
 	
-	let addToMenu = vscode.commands.registerCommand("extension.addToProjectInclude", (...args) => { handleAddToProjectInclude(args); });
+	let recursiveAdd = vscode.commands.registerCommand('extension.addToIarProjectRecursive', (...args) => { handleAddToIarProject(args, true); });
+
+	context.subscriptions.push(recursiveAdd);
+
+	let addToMenu = vscode.commands.registerCommand("extension.addToProjectInclude", (...args) => { handleAddToProjectInclude(args, false); });
 
 	context.subscriptions.push(addToMenu);
+
+	let addToIncludesRecursive = vscode.commands.registerCommand("extension.addToProjectIncludeRecursive", (...args) => { handleAddToProjectInclude(args, true); });
+
+	context.subscriptions.push(addToIncludesRecursive);
 }
 
 async function setupExtension() {
@@ -45,7 +52,7 @@ function verifyExtensionSettings() {
 	vscode.commands.executeCommand('setContext', 'iarProjectExtensionEnabled', utility.fileExists(utility.getProjectFile()));
 }
 
-function handleAddToIarProject(args: any[]) {
+function handleAddToIarProject(args: any[], recursive: boolean) {
 	const config = vscode.workspace.getConfiguration('iarproject', null);
 	var workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.fsPath : "";
 	const projectFile = config.get<string>('projectFile')?.replace("${workspaceFolder}", workspaceFolder);
@@ -57,16 +64,13 @@ function handleAddToIarProject(args: any[]) {
 				for (let index = 0; index < args[1].length; index++) {
 					const uri = args[1][index] as vscode.Uri;
 					console.log(uri.fsPath);
-					
-					if (isIarFileType(uri.fsPath)) {
-						processUri(uri, result, output);
-					}
+					processUri(uri, result, recursive, output);
 				}
 			}
 			if (output.modified) {
 				var builder = new xml2js.Builder({ rootName: "project", renderOpts: { "pretty": true, "indent": "    ", "newline": "\r\n" } });
 				var xml = builder.buildObject(result.project);
-				fs.writeFile(projectFile, xml, function (err: any, data: any) {
+				fs.writeFile(projectFile, xml, function (err: any, _data: any) {
 					if (err) {
 						console.log(err);
 					}
@@ -100,7 +104,19 @@ function getExtension(path: string): string {
 	return "";
 }
 
-function processUri(uri: vscode.Uri, iarJson: any, output: { modified: boolean; }) {
+function processUri(uri: vscode.Uri, iarJson: any, recursive: boolean, output: { modified: boolean; }) {
+	if (recursive && fs.existsSync(uri.fsPath) && fs.lstatSync(uri.fsPath).isDirectory()) {
+		let files = fs.readdirSync(uri.fsPath);
+		for (const file of files) {
+			const newUri = vscode.Uri.file(path.join(uri.fsPath, file));
+			processUri(newUri, iarJson, recursive, output);
+		}
+	} else if (isIarFileType(uri.fsPath)) {
+		processIarUri(uri, iarJson, output);
+	}
+}
+
+function processIarUri(uri: vscode.Uri, iarJson: any, output: { modified: boolean; }) {
 	var workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath ?? "";
 	var filePath = uri.fsPath.replace(workspaceFolder, "$PROJ_DIR$");
 	console.log("Attempting to add '" + filePath + "' to the IAR project");
@@ -221,7 +237,7 @@ function lookInFile(root: any, path: string, fileToAdd: string) {
 	return found;
 }
 
-function handleAddToProjectInclude(args: any[]) {
+function handleAddToProjectInclude(args: any[], recursive: boolean) {
 	let configs = getProjectConfigurations();
 	
 	if (configs.length === 0) {
@@ -241,7 +257,7 @@ function handleAddToProjectInclude(args: any[]) {
 			return;
 		}
 
-		var includeFolders = getIncludeFolders(args);
+		var includeFolders = getIncludeFolders(args, recursive);
 
 		if (includeFolders.length === 0) {
 			vscode.window.showInformationMessage("No folders selected to add to the IAR project.");
@@ -277,7 +293,7 @@ function getProjectConfigurations(): string[] {
 	return configurations;
 }
 
-function getIncludeFolders(args: any[]): string[] {
+function getIncludeFolders(args: any[], recursive: boolean): string[] {
 	const projectFile = utility.getProjectFile();
 	const projectFolder = utility.getProjectFolder(projectFile);
 	var includeFolders: string[] = [];
@@ -286,16 +302,27 @@ function getIncludeFolders(args: any[]): string[] {
 		for (let index = 0; index < args[1].length; index++) {
 			const uri = args[1][index] as vscode.Uri;
 
-			if (isDirectory(uri.fsPath)) {
-				if (uri.fsPath.startsWith(projectFolder)) {
-					var includePath = "$PROJ_DIR$" + uri.fsPath.substring(projectFolder.length);
-					includeFolders.push(includePath);
-				}
-			}
+			processProjectIncludePath(uri, projectFolder, includeFolders, recursive);
 		}
 	}
 
 	return includeFolders;
+}
+
+function processProjectIncludePath(uri: vscode.Uri, projectFolder: string, includeFolders: string[], recursive: boolean) {
+	if (isDirectory(uri.fsPath)) {
+		if (uri.fsPath.startsWith(projectFolder)) {
+			var includePath = "$PROJ_DIR$" + uri.fsPath.substring(projectFolder.length);
+			includeFolders.push(includePath);
+		}
+		if (recursive) {
+			let files = fs.readdirSync(uri.fsPath);
+			for (const file of files) {
+				const newUri = vscode.Uri.file(path.join(uri.fsPath, file));
+				processProjectIncludePath(newUri, projectFolder, includeFolders, recursive);
+			}
+		}
+	}
 }
 
 function isDirectory(path: string) {

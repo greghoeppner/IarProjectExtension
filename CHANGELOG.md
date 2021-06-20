@@ -2,6 +2,11 @@
 
 All notable changes to the "IAR Project" extension will be documented in this file.
 
+## 0.2.1
+
+- Added the ability to recursively add folders to the include path by right clicking on the folder.
+- Added the ability to recursively add files to the IAR project by right clicking on a folder.
+
 ## 0.2.0
 
 - Added the ability to add folders to the include path by right clicking on the folder.

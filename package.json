@@ -8,7 +8,7 @@
 		"type": "git",
 		"url": "https://github.com/greghoeppner/IarProjectExtension"
 	},
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"engines": {
 		"vscode": "^1.48.0"
 	},
@@ -28,8 +28,16 @@
 					"command": "extension.addToIarProject"
 				},
 				{
+					"when": "iarProjectExtensionEnabled && resourceExtname =~ /(^.c$|^.h$|^.cpp$|^.a$|^.lib$|^.s$)/ || iarProjectExtensionEnabled && explorerResourceIsFolder",
+					"command": "extension.addToIarProjectRecursive"
+				},
+				{
 					"when": "iarProjectExtensionEnabled && explorerResourceIsFolder",
 					"command": "extension.addToProjectInclude"
+				},
+				{
+					"when": "iarProjectExtensionEnabled && explorerResourceIsFolder",
+					"command": "extension.addToProjectIncludeRecursive"
 				}
 			],
 			"view/item/context": [
@@ -52,8 +60,16 @@
 				"title": "Add to IAR Project"
 			},
 			{
+				"command": "extension.addToIarProjectRecursive",
+				"title": "Add to IAR Project (Recursive)"
+			},
+			{
 				"command": "extension.addToProjectInclude",
 				"title": "Add to IAR Project Includes"
+			},
+			{
+				"command": "extension.addToProjectIncludeRecursive",
+				"title": "Add to IAR Project Includes (Recursive)"
 			},
 			{
 				"command": "projectExplorer.removeFromProject",
